@@ -1,21 +1,24 @@
 from djongo import models
 
-class User(models.Model):
-    name = models.CharField(max_length=100)
-    email = models.EmailField(unique=True)
-    team = models.CharField(max_length=50)
-    is_superhero = models.BooleanField(default=True)
-    def __str__(self):
-        return self.name
-
 class Team(models.Model):
+    _id = models.ObjectIdField(primary_key=True, editable=False)
     name = models.CharField(max_length=50, unique=True)
     description = models.TextField(blank=True)
     def __str__(self):
         return self.name
 
+class User(models.Model):
+    _id = models.ObjectIdField(primary_key=True, editable=False)
+    name = models.CharField(max_length=100)
+    email = models.EmailField(unique=True)
+    team = models.ForeignKey(Team, on_delete=models.CASCADE, related_name='users')
+    is_superhero = models.BooleanField(default=True)
+    def __str__(self):
+        return self.name
+
 class Activity(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    _id = models.ObjectIdField(primary_key=True, editable=False)
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='activities')
     type = models.CharField(max_length=50)
     duration = models.IntegerField()  # minutes
     date = models.DateField()
@@ -23,12 +26,14 @@ class Activity(models.Model):
         return f"{self.user.name} - {self.type}"
 
 class Leaderboard(models.Model):
-    team = models.ForeignKey(Team, on_delete=models.CASCADE)
+    _id = models.ObjectIdField(primary_key=True, editable=False)
+    team = models.ForeignKey(Team, on_delete=models.CASCADE, related_name='leaderboards')
     points = models.IntegerField(default=0)
     def __str__(self):
         return f"{self.team.name} - {self.points}"
 
 class Workout(models.Model):
+    _id = models.ObjectIdField(primary_key=True, editable=False)
     name = models.CharField(max_length=100)
     description = models.TextField()
     suggested_for = models.CharField(max_length=50)
